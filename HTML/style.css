@@ -1,0 +1,227 @@
+/* 补充样式 */
+
+/* 深色模式下的代码高亮样式 */
+.dark .hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-subst {
+  color: #60a5fa;
+}
+
+.dark .hljs-string,
+.dark .hljs-attr-value {
+  color: #4ade80;
+}
+
+.dark .hljs-comment {
+  color: #94a3b8;
+}
+
+.dark .hljs-title {
+  color: #fcd34d;
+}
+
+.dark .hljs-attr,
+.dark .hljs-variable,
+.dark .hljs-template-variable,
+.dark .hljs-type {
+  color: #f87171;
+}
+
+.dark .hljs-regexp,
+.dark .hljs-link {
+  color: #fb7185;
+}
+
+.dark .hljs-number,
+.dark .hljs-literal {
+  color: #c084fc;
+}
+
+.dark .hljs-built_in,
+.dark .hljs-builtin-name {
+  color: #22d3ee;
+}
+
+.dark .hljs-meta {
+  color: #f0abfc;
+}
+
+.dark .hljs-deletion {
+  background-color: #fecdd3;
+  color: #b91c1c;
+}
+
+.dark .hljs-addition {
+  background-color: #bbf7d0;
+  color: #166534;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .news-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .news-content h2 {
+    font-size: 1.25rem;
+  }
+  
+  .news-content h3 {
+    font-size: 1.1rem;
+  }
+}
+
+/* 骨架屏样式 */
+.skeleton-title {
+  height: 2rem;
+  width: 50%;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+}
+
+.skeleton-summary {
+  height: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.skeleton-content {
+  height: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.skeleton-content.short {
+  width: 70%;
+}
+
+.skeleton-content.medium {
+  width: 85%;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* 平滑滚动 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 按钮禁用状态 */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 卡片悬停效果 */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* 动画效果 */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* 提示框样式 */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 4px;
+  background-color: #1e293b;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  background-color: #10b981;
+}
+
+.toast.error {
+  background-color: #ef4444;
+}
+
+.toast.info {
+  background-color: #3b82f6;
+}

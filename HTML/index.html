@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日新闻聚合平台</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Marked.js -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="light-theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="dark-theme" disabled>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            dark: {
+              100: '#1e293b',
+              200: '#0f172a',
+              300: '#020617',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'spin-slow': 'spin 2s linear infinite',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* 自定义样式 */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .date-item {
+      transition: all 0.2s ease;
+    }
+    
+    .date-item:hover {
+      background-color: rgba(14, 165, 233, 0.1);
+    }
+    
+    .date-item.active {
+      background-color: rgba(14, 165, 233, 0.2);
+      border-left: 3px solid #0ea5e9;
+    }
+    
+    .dark .date-item:hover {
+      background-color: rgba(14, 165, 233, 0.05);
+    }
+    
+    .dark .date-item.active {
+      background-color: rgba(14, 165, 233, 0.1);
+    }
+    
+    .news-content {
+      min-height: 500px;
+    }
+    
+    .news-content h1,
+    .news-content h2,
+    .news-content h3,
+    .news-content h4,
+    .news-content h5,
+    .news-content h6 {
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    
+    .news-content p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .news-content ul,
+    .news-content ol {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+    
+    .news-content ul {
+      list-style-type: disc;
+    }
+    
+    .news-content ol {
+      list-style-type: decimal;
+    }
+    
+    .news-content li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .news-content blockquote {
+      border-left: 4px solid #e2e8f0;
+      padding-left: 1rem;
+      font-style: italic;
+      margin-bottom: 1rem;
+      color: #64748b;
+    }
+    
+    .news-content pre {
+      background-color: #f8fafc;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+    
+    .dark .news-content pre {
+      background-color: #1e293b;
+    }
+    
+    .news-content code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+    }
+    
+    .news-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    
+    .news-content th,
+    .news-content td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .dark .news-content th,
+    .dark .news-content td {
+      border-bottom-color: #334155;
+    }
+    
+    .news-content th {
+      font-weight: 600;
+      background-color: #f1f5f9;
+    }
+    
+    .dark .news-content th {
+      background-color: #1e293b;
+    }
+    
+    .news-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* 加载动画 */
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(14, 165, 233, 0.2);
+      border-radius: 50%;
+      border-top-color: #0ea5e9;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* 生成状态动画 */
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    /* 骨架屏 */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+    }
+    
+    .dark .skeleton {
+      background: linear-gradient(90deg, #2d3748 25%, #4a5568 50%, #2d3748 75%);
+      background-size: 200% 100%;
+    }
+    
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .sidebar-toggle {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-dark-200 dark:text-gray-100">
+  <!-- 页面加载动画 -->
+  <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-white dark:bg-dark-200 z-50">
+    <div class="text-center">
+      <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/d7a57a7a858d4ee8ad0cec34793a6a03~tplv-a9rns2rl98-image.image?rcl=20251020171649901E0B9D06B3B22BCB62&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763543846&x-signature=iPuO9g3G%2FqnaVuSJiHPqriDTtkY%3D" alt="加载中" class="w-20 h-20 animate-spin-slow mx-auto">
+      <p class="mt-4 text-lg font-medium text-primary-600 dark:text-primary-400">加载中...</p>
+    </div>
+  </div>
+
+  <!-- 顶部导航栏 -->
+  <header class="bg-white dark:bg-dark-100 shadow-md fixed top-0 w-full z-10">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold text-primary-600 dark:text-primary-400">每日新闻聚合平台</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-200 transition-colors">
+          <i class="fa fa-moon-o dark:hidden" aria-hidden="true"></i>
+          <i class="fa fa-sun-o hidden dark:block text-yellow-400" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <div class="container mx-auto px-4 pt-16 flex flex-col md:flex-row">
+    <!-- 左侧边栏 -->
+    <aside class="sidebar w-full md:w-64 bg-white dark:bg-dark-100 shadow-md md:min-h-screen md:sticky md:top-16 overflow-y-auto">
+      <div class="p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold">新闻日期</h2>
+          <button id="collapse-all" class="text-sm text-primary-600 dark:text-primary-400 hover:underline">
+            全部折叠
+          </button>
+        </div>
+        
+        <div id="date-list" class="space-y-1">
+          <!-- 日期列表将通过JavaScript动态生成 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右侧内容区 -->
+    <main class="main-content flex-1 p-4 md:p-6">
+      <!-- 欢迎页面 -->
+      <div id="welcome-page" class="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-6">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+          <div class="md:w-1/2 mb-6 md:mb-0">
+            <h2 class="text-2xl font-bold mb-4 text-primary-600 dark:text-primary-400">欢迎使用每日新闻聚合平台</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
+              本平台为您提供每日新闻的聚合和总结服务，帮助您高效获取和阅读重要新闻内容。
+            </p>
+            <div class="space-y-2 mb-6">
+              <div class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>点击左侧日期查看对应新闻</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>点击"生成今日新闻"获取最新内容</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>支持深色/浅色模式切换，保护您的眼睛</span>
+              </div>
+            </div>
+            <button id="generate-news-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md transition-colors flex items-center">
+              <i class="fa fa-refresh mr-2"></i> 生成今日新闻
+            </button>
+          </div>
+          <div class="md:w-1/2">
+            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/abc121bc89f44e8092cdc1024591f290~tplv-a9rns2rl98-image.image?rcl=20251020171649901E0B9D06B3B22BCB62&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763543838&x-signature=kZe3VxEIiWJSrHBXfbMUzFTff4E%3D" alt="新闻聚合平台" class="rounded-lg shadow-lg w-full">
+          </div>
+        </div>
+      </div>
+
+      <!-- 新闻内容区 -->
+      <div id="news-content" class="hidden">
+        <!-- 新闻标题和生成状态 -->
+        <div class="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+            <h2 id="news-date-title" class="text-2xl font-bold text-primary-600 dark:text-primary-400"></h2>
+            <div class="mt-2 md:mt-0 flex items-center">
+              <button id="refresh-news-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md transition-colors flex items-center mr-2">
+                <i class="fa fa-refresh mr-2"></i> 刷新
+              </button>
+              <span id="news-status" class="text-sm"></span>
+            </div>
+          </div>
+          <div id="news-summary" class="text-gray-600 dark:text-gray-300"></div>
+        </div>
+
+        <!-- Markdown内容渲染区 -->
+        <div class="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6">
+          <div id="markdown-content" class="news-content prose dark:prose-invert max-w-none"></div>
+        </div>
+      </div>
+
+      <!-- 生成新闻状态区 -->
+      <div id="generate-status" class="hidden bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-4">新闻生成状态</h3>
+        <div class="flex items-center justify-center p-8">
+          <div id="status-content" class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p id="status-message" class="text-lg"></p>
+            <div id="status-progress" class="mt-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+              <div id="progress-bar" class="bg-primary-600 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 错误提示区 -->
+      <div id="error-message" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+          <i class="fa fa-exclamation-circle text-red-500 mt-1 mr-3 text-lg"></i>
+          <div>
+            <h3 class="text-lg font-medium text-red-800 dark:text-red-300">发生错误</h3>
+            <p id="error-details" class="text-red-700 dark:text-red-400 mt-1"></p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 底部区域 -->
+  <footer class="bg-white dark:bg-dark-100 shadow-inner mt-8 py-6">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <p class="text-gray-600 dark:text-gray-400">&copy; 2025 每日新闻聚合平台. 保留所有权利.</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span id="last-updated" class="text-gray-600 dark:text-gray-400 text-sm"></span>
+          <button id="scroll-top-btn" class="bg-primary-600 hover:bg-primary-700 text-white p-2 rounded-full transition-colors">
+            <i class="fa fa-arrow-up"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
